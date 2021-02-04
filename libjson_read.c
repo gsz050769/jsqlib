@@ -27,6 +27,12 @@
 #include "libjson_qual.h"
 #include "libjson_read.h"
 
+/**
+    read - check if string ends with substring 
+    @param	in  string to be checked
+	@param	suffix substrig
+    @return 0 => succes 
+*/
 static int ends_with(const char *in, const char *suffix)
 {
     if (!in || !suffix)
@@ -38,7 +44,12 @@ static int ends_with(const char *in, const char *suffix)
     return (strncmp(in + lenin - lensuffix, suffix, lensuffix)==0);
 }
 
-int ljs_read_anz_level_elements(ljs *js)
+/**
+    read - get number of elments of the level given json element belongs to
+    @param js	json element
+    @return number of elements 
+*/
+int ljs_read_no_of_level_elements(ljs *js)
 {
 	int count=0;
 	//printf("[LJS_READ] %s start %p \n",__FUNCTION__,js);
@@ -55,6 +66,11 @@ int ljs_read_anz_level_elements(ljs *js)
 	return count;
 }
 
+/**
+    read - get last js element
+    @param js	json element
+    @return number of elements 
+*/
 ljs * ljs_read_last_level_element(ljs *js)
 {
 	ljs *last=NULL;
@@ -66,6 +82,12 @@ ljs * ljs_read_last_level_element(ljs *js)
 	return last;
 }
 
+/**
+    read - get js element in given json level defined by tuple
+    @param js	json element to be searched in
+	@param tuple defines json element name and type
+    @return found js element 
+*/
 ljs * ljs_read_element(ljs *js, ljsQualTuple tup)
 {
 
@@ -85,6 +107,13 @@ ljs * ljs_read_element(ljs *js, ljsQualTuple tup)
 	return NULL;
 }
 
+/**
+    read - get js element in given json element defined by qualifier
+    @param js	json element to be searched in
+	@param qualifier defines json tree by a chain of tuples
+	@param result provides found js element
+    @return 0 => success, -1 => error
+*/
 int ljs_read(ljs * js, char * qual, void ** result)
 {
 	ljs * ljs_my=js;
@@ -155,6 +184,12 @@ int ljs_read(ljs * js, char * qual, void ** result)
 	return -1;
 }
 
+/**
+    read - get js element in given json element defined by qualifier
+    @param js	json element to be searched in
+	@param qualifier defines json tree by a chain of tuples
+    @return pointer to js element
+*/
 ljs* ljs_read_ref(ljs * js, char * qual)
 {
 	

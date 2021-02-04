@@ -5,10 +5,10 @@ app_objects = libjson_app.o libjson_qual.o libjson_write.o libjson_read.o libjso
 all: libjson libjson_app
 
 libjson: $(objects)
-	ar -r -o libjson $(objects)
+	ar -r -o jsqlib $(objects)
 
 libjson_app: $(app_objects)
-	gcc -o libjson_app $(objects)
+	gcc -o jsqlib_app $(objects)
 
 libjson.o: libjson.c libjson.h libjson_qual.h libjson_write.h libjson_read.h
 	gcc -c libjson.c

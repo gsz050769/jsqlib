@@ -21,7 +21,7 @@ extern int  ljs_read(ljs * js, char * qualifier, void ** result);
 extern ljs* ljs_read_ref(ljs * js, char * qualifier);
 extern ljs* ljs_read_element(ljs *js, ljsQualTuple tup);
 extern ljs* ljs_read_last_level_element(ljs *js);
-extern int  ljs_read_anz_level_elements(ljs *js);
+extern int  ljs_read_no_of_level_elements(ljs *js);
 
 
 

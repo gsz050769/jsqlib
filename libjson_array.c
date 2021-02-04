@@ -38,7 +38,7 @@ ljs * ljs_array_get_index(ljs *array, int idx)
 
 	
 	//printf("[LJS_ARRAY] %s array=%p idx=%d\n",__FUNCTION__,array,idx);
-	number=ljs_read_anz_level_elements(array->child);
+	number=ljs_read_no_of_level_elements(array->child);
 	idx=abs(idx);
 	if(idx>number)
 	{
@@ -107,7 +107,7 @@ ljs * ljs_array_create_next_index_of_null(ljs *array_entry)
 	int entries=0;
 	if(array_entry && array)
 	{
-		entries = ljs_read_anz_level_elements(array_entry);
+		entries = ljs_read_no_of_level_elements(array_entry);
 		return (ljs_array_create_index_of_null(array,entries));
 	}
 	return NULL;

@@ -50,7 +50,6 @@
 //
 //	ToDo:
 //		- extensive testing 
-//      - make it a libarary 
-//		- error fixing second example main 
+
 	
 

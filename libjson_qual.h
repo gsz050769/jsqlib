@@ -18,8 +18,8 @@
 
 typedef struct ljsQualTuple
 {
-  char* key;
-  ljsType jstype;
+  char* key;        // json element key
+  ljsType jstype;   // json element type see libjson.h
 } ljsQualTuple;
 
 extern int ljs_qual_get_next(char * qual, ljsQualTuple * tuple);
