@@ -205,7 +205,7 @@ char *ljs_out_buf=NULL;
 
 static char  * _ljs_print_malloc_element(ljs *js,bool start)
 {
-
+	bool is_array=ljs_read_get_parent_type(js)==ljsType_array?1:0;
 	if(start)
 	{
 		size_of_js=js_print_sizeof(js,1)+100;  // +1 for string termination + 99 secrity space
@@ -224,20 +224,55 @@ static char  * _ljs_print_malloc_element(ljs *js,bool start)
 		switch(js->type)
 		{
 			case ljsType_bool:
-				sprintf(ljs_print_write,"\"%s\":%s",js->key,js->boolean?"true":"false");
+				if (!is_array)
+				{
+					sprintf(ljs_print_write,"\"%s\":%s",js->key,js->boolean?"true":"false");
+				}
+				else
+				{
+					sprintf(ljs_print_write,"%s",js->boolean?"true":"false");
+				}
 				break;
 			case ljsType_null:
-				sprintf(ljs_print_write,"\"%s\":null",js->key);
+				if (!is_array)
+				{
+					sprintf(ljs_print_write,"\"%s\":null",js->key);
+				}
+				else
+				{
+					sprintf(ljs_print_write,"null");
+				}
 				break;
 			case ljsType_number:
-				sprintf(ljs_print_write,"\"%s\":%g",js->key,js->number);
+				if (!is_array)
+				{
+					sprintf(ljs_print_write,"\"%s\":%g",js->key,js->number);
+				}
+				else
+				{
+					sprintf(ljs_print_write,"%g",js->number);
+				}
 				break;
 			case ljsType_string:
-				sprintf(ljs_print_write,"\"%s\":\"%s\"",js->key,js->strVal);
+				if (!is_array)
+				{
+					sprintf(ljs_print_write,"\"%s\":\"%s\"",js->key,js->strVal);
+				}
+				else
+				{
+					sprintf(ljs_print_write,"\"%s\"",js->strVal);
+				}
 				break;
 			case ljsType_object:
 			case ljsType_array:
-				sprintf(ljs_print_write,js->type==ljsType_object?"\"%s\":{":"\"%s\":[",js->key);
+				if (!is_array)
+				{
+					sprintf(ljs_print_write,js->type==ljsType_object?"\"%s\":{":"\"%s\":[",js->key);
+				}
+				else
+				{
+					sprintf(ljs_print_write,js->type==ljsType_object?"{":"[");
+				}
 				_ljs_print_malloc_element(js->child,0);
 				strcat(ljs_out_buf,js->type==ljsType_object?"}":"]");
 			case ljsType_root:
