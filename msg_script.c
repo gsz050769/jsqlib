@@ -118,6 +118,75 @@ static void status_send(void)
     ljs_free(js);
 }
 
+
+static void pos_dect_send(char *token, int idxx)
+{
+    char * sipid=NULL;
+    char msg_idx[40];
+    idx=idx%10000;
+    sprintf(msg_idx,"%d",idx);
+    ljs* js=NULL;
+    char *out=NULL;
+    char temp[1024];
+    char topic[200];
+
+    
+    if (token && (sipid=strtok(token,"|")))
+    {
+        js = ljs_init();
+        ljs_add_string(js,"msgId:ljsType_string",msg_idx);
+        ljs_add_string(js,"params:ljsType_object/sip_id:ljsType_string",sipid);
+        ljs_add_string(js,"params:ljsType_object/mode:ljsType_string","dps");
+        out=ljs_print_malloc(js);
+        sprintf(topic,"as1/service2/sip_id/%s/req/position",sipid);
+        sprintf(temp, "mosquitto_pub -u as1 --psk-identity as1 --psk 123456789012345678901234567890ab -t \'%s\' -m \'%s\' -p 8884 -h 192.168.178.89", topic, out);
+        printf("command = %s\n",temp);
+        int status = system(temp);
+        printf("status=%d\n",status);
+        printf("##########################################################################\n");
+        free(out);
+        ljs_free(js);
+    }
+
+}
+
+
+ 
+static void pos_ble_send(char *token, int idx)
+{
+    char * sipid=NULL;
+    char msg_idx[40];
+    idx=idx%10000;
+    sprintf(msg_idx,"%d",idx);
+    ljs* js=NULL;
+    char *out=NULL;
+    char temp[1024];
+    char topic[200];
+
+    
+    if (token && (sipid=strtok(token,"|")))
+    {
+        js = ljs_init();
+        ljs_add_string(js,"msgId:ljsType_string",msg_idx);
+        ljs_add_string(js,"params:ljsType_object/sip_id:ljsType_string",sipid);
+        ljs_add_string(js,"params:ljsType_object/mode:ljsType_string","ble");
+        ljs_add_array(js,"params:ljsType_object/company_ids:ljsType_array",NULL);
+        ljs_add_string(js,"params:ljsType_object/timeout:ljsType_string","5");
+        ljs_add_string(js,"params:ljsType_object/max_beacons:ljsType_string","4");
+        ljs_add_string(js,"params:ljsType_object/req_info:ljsType_string","0F");
+        out=ljs_print_malloc(js);
+        sprintf(topic,"as1/service2/sip_id/%s/req/position",sipid);
+        sprintf(temp, "mosquitto_pub -u as1 --psk-identity as1 --psk 123456789012345678901234567890ab -t \'%s\' -m \'%s\' -p 8884 -h 192.168.178.89", topic, out);
+        printf("command = %s\n",temp);
+        int status = system(temp);
+        printf("status=%d\n",status);
+        printf("##########################################################################\n");
+        free(out);
+        ljs_free(js);
+    }
+    
+}
+
 int main(int argc, const char *argv[])
 {
     ljs *js=NULL;
@@ -214,7 +283,17 @@ int main(int argc, const char *argv[])
         }
         if (token && (strcmp(token,"STATUS")==0))
         {
-
+            status_send();
+        }
+        if (token && (strcmp(token,"POS_BLE")==0))
+        {
+            token=strtok(NULL,":");
+            pos_ble_send(token,msgidx);
+        }
+        if (token && (strcmp(token,"POS_DECT")==0))
+        {
+            token=strtok(NULL,":");
+            pos_dect_send(token,msgidx);
         }
     }
     fclose(file);

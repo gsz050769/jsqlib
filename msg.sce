@@ -1,12 +1,14 @@
 // Commands, syntax:
-// STATUS:  = get status message
-// S_MSG:   = setMsg <sip_id>|<a_msg_id>|<prio>|<ttl>|text|
-// D_MSG:   = delMsg <sip_id>|<a_msg_id>
-// WAIT:    = sleep <seconds>
-// RESTART: = start again   
-// END:     = end scenrio here
+// STATUS:    = get status message
+// S_MSG:     = setMsg <sip_id>|<a_msg_id>|<prio>|<ttl>|text|
+// D_MSG:     = delMsg <sip_id>|<a_msg_id>
+// POS_BLE:   = ble position req <sip_id>
+// POS_BLE:   = dect position req <sip_id>
+// WAIT:      = sleep <seconds>
+// RESTART:   = start again   
+// END:       = end scenrio here
 // 
-S_MSG:4021|4021_2|5|360|<=Prio7 _1=>|
+POS_BLE:4021|
 END:
 //
 //
