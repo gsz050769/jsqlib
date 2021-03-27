@@ -1,3 +1,5 @@
 # ignore objetcs
-*.o
+*.vscode
+gen/*
+
 
