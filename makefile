@@ -1,16 +1,8 @@
 objects = libjson.o libjson_qual.o libjson_write.o libjson_read.o libjson_print.o libjson_free.o libjson_array.o libjson_parse.o libjson_memory.o
-objects_messaging = messaging.o libjson.o libjson_qual.o libjson_write.o libjson_read.o libjson_print.o libjson_free.o libjson_array.o libjson_parse.o libjson_memory.o
-objects_msgscript = msg_script.o libjson.o libjson_qual.o libjson_write.o libjson_read.o libjson_print.o libjson_free.o libjson_array.o libjson_parse.o libjson_memory.o
 app_objects = libjson_app.o libjson_qual.o libjson_write.o libjson_read.o libjson_print.o libjson_free.o libjson_array.o libjson_parse.o libjson_memory.o
 
 
 all: jsqlib.a jsqlib_app
-
-messaging: $(objects_messaging)
-	gcc -o messaging  $(objects_messaging)
-
-msg_script: $(objects_msgscript)
-	gcc -o msg_script  $(objects_msgscript) -pthread
 
 jsqlib.a: $(objects)
 	ar -r -o jsqlib.a $(objects)
@@ -47,12 +39,6 @@ libjson_parse.o: libjson_parse.c libjson_parse.h libjson.h
 
 libjson_memory.o: libjson_memory.c libjson_memory.h libjson.h
 	gcc -c libjson_memory.c
-
-messaging.o: messaging.c libjson.h
-	gcc -c messaging.c
-
-msg_script.o: msg_script.c libjson.h
-	gcc -c msg_script.c
 
 clean:
 	rm $(objects)
