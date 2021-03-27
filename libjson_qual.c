@@ -56,7 +56,7 @@ int ljs_qual_get_next(char* qual, ljsQualTuple * retTuple)
 	retTuple->key=pointerRead;
 	while(pointerRead<=(pointerStart+length))
 	{
-		if ((*pointerRead)==58)
+		if ((*pointerRead)==':')
 		{
 			*pointerRead=0;
 			pointerRead++;
@@ -72,32 +72,32 @@ int ljs_qual_get_next(char* qual, ljsQualTuple * retTuple)
 						retTuple->jstype=ljsType_root;
 						return 0;
 					}
-					if (strcmp(help,"ljsType_null")==0)
+					if ((strcmp(help,LJS_QUAL_1_NUL)==0) || (strcmp(help,LJS_QUAL_2_NUL)==0) )
 					{
 						retTuple->jstype=ljsType_null;
 						return 0;
 					}
-					if (strcmp(help,"ljsType_bool")==0)
+					if ((strcmp(help,LJS_QUAL_1_BOL)==0) || (strcmp(help,LJS_QUAL_2_BOL)==0) )
 					{
 						retTuple->jstype=ljsType_bool;
 						return 0;
 					}
-					if (strcmp(help,"ljsType_object")==0)
+					if ((strcmp(help,LJS_QUAL_1_OBJ)==0) || (strcmp(help,LJS_QUAL_2_OBJ)==0) )
 					{
 						retTuple->jstype=ljsType_object;
 						return 0;
 					}
-					if (strcmp(help,"ljsType_array")==0)
+					if ((strcmp(help,LJS_QUAL_1_ARR)==0) || (strcmp(help,LJS_QUAL_2_ARR)==0) )
 					{
 						retTuple->jstype=ljsType_array;
 						return 0;
 					}
-					if (strcmp(help,"ljsType_number")==0)
+					if ((strcmp(help,LJS_QUAL_1_NUM)==0) || (strcmp(help,LJS_QUAL_2_NUM)==0) )
 					{
 						retTuple->jstype=ljsType_number;
 						return 0;
 					}
-					if (strcmp(help,"ljsType_string")==0)
+					if ((strcmp(help,LJS_QUAL_1_STR)==0) || (strcmp(help,LJS_QUAL_2_STR)==0) )
 					{
 						retTuple->jstype=ljsType_string;
 						return 0;
@@ -105,7 +105,7 @@ int ljs_qual_get_next(char* qual, ljsQualTuple * retTuple)
 					if (retTuple->jstype!=ljsType_root)
 					{
 						return 0;
-					}	
+					}
 				}
 			pointerRead++;
 			}

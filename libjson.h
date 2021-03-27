@@ -19,6 +19,8 @@
 // *******************************************************
 // Object types
 // *******************************************************
+#ifndef _LIBJSON_H_
+#define _LIBJSON_H_
 typedef enum ljsType
 {
 	ljsType_root,
@@ -30,6 +32,26 @@ typedef enum ljsType
     ljsType_number,
 	ljsType_invalid
 } ljsType;
+
+// **************************************************************
+// qualifier names old (depreciated for back wards compatibility)
+// **************************************************************
+#define  LJS_QUAL_1_OBJ "ljsType_object"
+#define  LJS_QUAL_1_ARR "ljsType_array"
+#define  LJS_QUAL_1_NUL "ljsType_null"
+#define  LJS_QUAL_1_BOL	"ljsType_bool"
+#define  LJS_QUAL_1_STR "ljsType_string"
+#define  LJS_QUAL_1_NUM "ljsType_number"
+// *******************************************************
+// qualifier names new short
+// *******************************************************
+#define  LJS_QUAL_2_OBJ "OBJ"
+#define  LJS_QUAL_2_ARR "ARR"
+#define  LJS_QUAL_2_NUL "NULL"
+#define  LJS_QUAL_2_BOL	"BOOL"
+#define  LJS_QUAL_2_STR "STR"
+#define  LJS_QUAL_2_NUM "NO"
+
 
 // *******************************************************
 // print formats 
@@ -99,3 +121,5 @@ extern ljsType ljs_read_type(ljs *js);
 // *******************************************************
 extern char * ljs_print(ljs * js, ljsFormat format);
 extern char * ljs_print_malloc(ljs *js);
+
+#endif // _LIBJSON_H_

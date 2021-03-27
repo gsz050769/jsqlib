@@ -142,8 +142,9 @@ int main(void)
 	
 	ljs_print(my_json,ljsFormat_pretty);  
 
+
 	char * street=0;
-	if (0==ljs_read_string(my_json,"address:ljsType_array/0:ljsType_string",&street))
+	if (0==ljs_read_string(my_json,"address:ARR/0:STR",&street))
 	{
 		printf("[LJS] Street = %s\n",street);
 	}
@@ -153,8 +154,24 @@ int main(void)
 	{
 		printf("[LJS] Number = %d\n",(int)street_number);
 	}
-
+	street_number=0;
+	if (0==ljs_read_number(my_json,"address:ARR/1:NO",&street_number))
+	{
+		printf("[LJS] Number agian = %d\n",(int)street_number);
+	}
 	ljs_free(my_json);
+
+
+	my_json = ljs_init();
+	ljs_add_string(my_json,"persons:ARR/0:OBJ/lastname:STR","Trump");
+	ljs_add_string(my_json,"persons:ARR/0:OBJ/firstname:STR","Donald");
+	ljs_add_number(my_json,"persons:ARR/0:OBJ/iq:NO",-100);
+	ljs_add_bool(my_json,"persons:ARR/0:OBJ/active:BOOL",0);
+	ljs_print(my_json,ljsFormat_pretty);  
+	ljs_free(my_json);
+
+
+
 	return 0;
 }
 
@@ -233,7 +250,7 @@ bool ljs_add_parse_ok(int * line, char ** err)
 */
 int ljs_add_bool(ljs *js, char * qualifier, bool val)
 {
-	if((js) && ljs_strend(qualifier,"ljsType_bool"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_BOL)) || (ljs_strend(qualifier,LJS_QUAL_2_BOL)) ) )
 	{
 	  return (ljs_write(js,qualifier,(void*) (&val)) );
 	}
@@ -247,7 +264,7 @@ int ljs_add_bool(ljs *js, char * qualifier, bool val)
 */
 int ljs_add_null(ljs *js, char * qualifier)
 {
-	if((js) && ljs_strend(qualifier,"ljsType_null"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_NUL)) || (ljs_strend(qualifier,LJS_QUAL_2_NUL)) ) )
 	{
 	  return (ljs_write(js,qualifier,NULL) );
 	}
@@ -261,7 +278,7 @@ int ljs_add_null(ljs *js, char * qualifier)
 */
 int ljs_add_string(ljs *js, char * qualifier, char *  val)
 {
-	if((js) && ljs_strend(qualifier,"ljsType_string"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_STR)) || (ljs_strend(qualifier,LJS_QUAL_2_STR)) ) )
 	{
 	  return (ljs_write(js,qualifier,(char*)val) );
 	}
@@ -275,7 +292,7 @@ int ljs_add_string(ljs *js, char * qualifier, char *  val)
 */
 int ljs_add_number(ljs *js, char * qualifier, double val)
 {
-	if((js) && ljs_strend(qualifier,"ljsType_number"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_NUM)) || (ljs_strend(qualifier,LJS_QUAL_2_NUM)) ) )
 	{
 	  return (ljs_write(js,qualifier,(void*) (&val)) );
 	}
@@ -290,7 +307,7 @@ int ljs_add_number(ljs *js, char * qualifier, double val)
 */
 int ljs_add_object(ljs *js, char * qualifier, ljs* jsAdd)
 {
- 	if((js) && ljs_strend(qualifier,"ljsType_object"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_OBJ)) || (ljs_strend(qualifier,LJS_QUAL_2_OBJ)) ) )
 	{
 	  return (ljs_write(js,qualifier,(void*) jsAdd) );
 	}
@@ -304,7 +321,7 @@ int ljs_add_object(ljs *js, char * qualifier, ljs* jsAdd)
 */
 int ljs_add_array(ljs *js, char * qualifier, ljs* jsAdd)
 {
- 	if((js) && ljs_strend(qualifier,"ljsType_array"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_ARR)) || (ljs_strend(qualifier,LJS_QUAL_2_ARR)) ) )
 	{
 	  return (ljs_write(js,qualifier,(void*) jsAdd) );
 	}
@@ -320,7 +337,7 @@ int   ljs_read_bool(ljs * js, char * qualifier, bool * result)
 {
 	bool * tmp=NULL;
 	int res=-1;
-	if((js) && ljs_strend(qualifier,"ljsType_bool"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_BOL)) || (ljs_strend(qualifier,LJS_QUAL_2_BOL)) ) )
 	{
 		res=ljs_read(js,qualifier, (void**) &tmp);
 		*result=*tmp;
@@ -336,7 +353,7 @@ int   ljs_read_bool(ljs * js, char * qualifier, bool * result)
 int  ljs_read_null(ljs * js, char * qualifier)
 {
 	void * tmp=NULL;
-	if((js) && ljs_strend(qualifier,"ljsType_null"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_NUL)) || (ljs_strend(qualifier,LJS_QUAL_2_NUL)) ) )
 	{
 		return (ljs_read(js,qualifier, &tmp));
 	}
@@ -350,7 +367,7 @@ int  ljs_read_null(ljs * js, char * qualifier)
 */
 int  ljs_read_string(ljs * js, char * qualifier, char ** result)
 {
-	if((js) && ljs_strend(qualifier,"ljsType_string"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_STR)) || (ljs_strend(qualifier,LJS_QUAL_2_STR)) ) )
 	{
 		return (ljs_read(js,qualifier, (void**) result));
 	}
@@ -367,10 +384,13 @@ int ljs_read_number(ljs * js, char * qualifier, double * result)
 {
 	double * tmp=NULL;
 	int res=-1;
-	if((js) && ljs_strend(qualifier,"ljsType_number"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_NUM)) || (ljs_strend(qualifier,LJS_QUAL_2_NUM)) ) )
 	{
 		res=ljs_read(js,qualifier, (void**) &tmp);
-		*result=*tmp;
+		if (tmp)
+		{
+			*result=*tmp;
+		}
 	}
 	return res;
 }
@@ -382,7 +402,7 @@ int ljs_read_number(ljs * js, char * qualifier, double * result)
 */
 int  ljs_read_object(ljs * js, char * qualifier, ljs ** result)
 {
-	if((js) && ljs_strend(qualifier,"ljsType_object"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_OBJ)) || (ljs_strend(qualifier,LJS_QUAL_2_OBJ)) ) )
 	{
 		return (ljs_read(js,qualifier, (void**) result));
 	}
@@ -396,7 +416,7 @@ int  ljs_read_object(ljs * js, char * qualifier, ljs ** result)
 */
 int  ljs_read_array(ljs * js, char * qualifier, ljs ** result)
 {
-	if((js) && ljs_strend(qualifier,"ljsType_array"))
+	if( (js) && ( (ljs_strend(qualifier,LJS_QUAL_1_ARR)) || (ljs_strend(qualifier,LJS_QUAL_2_ARR)) ) )
 	{
 		return (ljs_read(js,qualifier, (void**) result));
 	}

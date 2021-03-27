@@ -91,7 +91,7 @@ ljs * ljs_read_last_level_element(ljs *js)
 ljs * ljs_read_element(ljs *js, ljsQualTuple tup)
 {
 
-	//printf("[LJS_READ] %s ljs=%p ljsQualTuple.key=%s\n",__FUNCTION__,js,tup.key);
+	//printf("[LJS_READ] %s ljs=%p ljsQualTuple.key=%s js->key=%s\n",__FUNCTION__,js,tup.key,js->key);
 	while(js)
 	{
 		if (js->key && (0==strcmp(js->key,tup.key)))
@@ -129,11 +129,10 @@ int ljs_read(ljs * js, char * qual, void ** result)
 		return -1;
 	}
 
-    if (ends_with(qual,"ljsType_object")||ends_with(qual,"ljsType_array"))
+    if (ends_with(qual,LJS_QUAL_1_OBJ)||ends_with(qual,LJS_QUAL_1_ARR) || ends_with(qual,LJS_QUAL_2_OBJ)||ends_with(qual,LJS_QUAL_2_ARR) )
 	{
 		objOrArray=1;
 	}
-
 	if (0==ljs_qual_get_next(qual,&jstuple))
 	{
 		do
@@ -171,6 +170,10 @@ int ljs_read(ljs * js, char * qual, void ** result)
 						return -1;
 				}
 			}
+			else
+			{
+				last=0;
+			}
 		} while ((ljs_my)&&(0==ljs_qual_get_next(NULL,&jstuple)));
 	}
 	if(last)
@@ -205,7 +208,7 @@ ljs* ljs_read_ref(ljs * js, char * qual)
 		return NULL;
 	}
 
-    if (ends_with(qual,"ljsType_object")||ends_with(qual,"ljsType_array"))
+    if (ends_with(qual,LJS_QUAL_1_OBJ)||ends_with(qual,LJS_QUAL_1_ARR)||ends_with(qual,LJS_QUAL_2_OBJ)||ends_with(qual,LJS_QUAL_2_ARR))
 	{
 		objOrArray=1;
 	}
