@@ -16,9 +16,9 @@
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 //
-//	VERSION 0.0 (still creation phase)
+//	VERSION 1.0 initial version
 //	
-//	Set of functions usedd to create and read JSON messages in an easy way.
+//	Set of functions used to create and read JSON messages in an easy way.
 //	
 //	include <libjson.h>
 //
@@ -30,14 +30,19 @@
 //	
 //	with
 //		<key> = json key of the JSON object
-//		<json_data_type> ?  enum ljsType as string
-//	
-//	
+//		<json_data_type> ?  enum ljsType as string:
+//	      OBJ   object
+//        ARR   array
+//        BOOL  bool
+//	      STR   string
+//        NO    number
+//        NULL  null
+//
 //	e.g. 
 //	
 //	ljs * my_json = ljs_init();
-//	ljs_add_string(my_json,"person:ljsType_object/firstname:ljsType_string","Georg");
-//	ljs_add_string(my_json,"person:ljsType_object/lastname:ljsType_string","Schmitz");
+//	ljs_add_string(my_json,"person:OBJ/firstname:STR","Georg");
+//	ljs_add_string(my_json,"person:OBJ/lastname:STR","Schmitz");
 //	ljs_print(my_json,ljsFormat_pretty);
 //	ljs_free(my_json);
 //	
@@ -50,6 +55,7 @@
 //
 //	ToDo:
 //		- extensive testing 
+//
 
 	
 
