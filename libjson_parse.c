@@ -60,16 +60,24 @@ typedef enum ljs_parse_state
     s_error,            // 7
 } ljs_parse_state;
 
-static ljs_parse_state state_stack[100];
+typedef struct ljs_parse_stack
+{
+  ljs_parse_state state;
+  ljs *js;
+} ljs_parse_stack;
+
+static ljs_parse_stack state_stack[100];
+
 static int state_idx=0;
 static void ljs_parse_init_state(void)
 {
     state_idx=0;
-    state_stack[state_idx]=s_idle;
+    state_stack[state_idx].state=s_idle;
+    state_stack[state_idx].js=NULL;
 }
 static void ljs_parse_set_state(ljs_parse_state new_state)
 {
-    state_stack[state_idx]=new_state;
+    state_stack[state_idx].state=new_state;
     //printf("[LJS_PARSE] %s new state = %d\n",__FUNCTION__,new_state);
 }
 static void ljs_parse_set_error_state(int idx, char * err)
@@ -77,34 +85,41 @@ static void ljs_parse_set_error_state(int idx, char * err)
     lsjs_parse_error_set(idx,err);
     ljs_parse_set_state(s_error);
 }
-static void ljs_parse_push_state(ljs_parse_state new_state)
+static void ljs_parse_push_state(ljs_parse_state new_state, ljs* js)
 {
+    //printf("[LJS_PARSE] %s push js= %p\n",__FUNCTION__,js);
+    state_stack[state_idx].js=js; // store js pointer to proceed with after pop
     state_idx++;
     if(state_idx<100)
     {
-        state_stack[state_idx]=new_state;
+        state_stack[state_idx].state=new_state;
+        state_stack[state_idx].js=NULL;
     }
     else
     {
         state_idx--;
         ljs_parse_set_error_state(0,"json tree too deep");
     }
-    //printf("[LJS_PARSE] %s new state = %d\n",__FUNCTION__,state_stack[state_idx]);
+    //printf("[LJS_PARSE] %s new state = %d\n",__FUNCTION__,state_stack[state_idx].state);
 }
-static void ljs_parse_pop_state(void)
+static ljs* ljs_parse_pop_state(void)
 {
     state_idx--;
     if(state_idx<0)
     {
         state_idx++;
-        state_stack[state_idx]=s_error;
+        state_stack[state_idx].state=s_error;
         ljs_parse_set_error_state(0,"state pop not possible");
+        return NULL;
     }
+    //printf("[LJS_PARSE] %s new state = %d js=%p\n",__FUNCTION__,state_stack[state_idx].state,state_stack[state_idx].js);
+    return state_stack[state_idx].js;
+
     //printf("[LJS_PARSE] %s new state = %d\n",__FUNCTION__,state_stack[state_idx]);
 }
 static ljs_parse_state  ljs_parse_get_state(void)
 {
-    return (state_stack[state_idx]);
+    return (state_stack[state_idx].state);
 }
 
 typedef enum ljs_parse_type
@@ -160,6 +175,8 @@ static ljs_parse_type ljs_parse_get_next_element(char * msg, int * start, int* l
         switch(msg[idx])
         {
             case ' ':
+            case '\n':
+            case '\r':
                 break;
             case '{':
                 return ljs_pt_obj_start;
@@ -250,6 +267,8 @@ ljs * ljs_parse_from_string(char *in)
             break;
         }
         oldidx=idx;
+        //printf("[LJS_PARSE] %s idx =%d 0x%02x state=%d %s\n",__FUNCTION__,idx,in[idx],ljs_parse_get_state(),&in[idx]);
+        //ljs_print_pointers(js_start);
         switch(ljs_parse_get_state())
         {
             case s_idle: // start
@@ -259,7 +278,7 @@ ljs * ljs_parse_from_string(char *in)
                         idx=idx+len;
                         js=ljs_init();
                         js_start=js;
-                        ljs_parse_push_state(s_object_key);
+                        ljs_parse_push_state(s_object_key,js);
                         break;
                     default:
                         ljs_parse_set_error_state(idx,"invalid format, expecting {");
@@ -271,7 +290,7 @@ ljs * ljs_parse_from_string(char *in)
                 {
                     case ljs_pt_obj_end:
                         idx+=start+len;
-                        ljs_parse_pop_state();
+                        js=ljs_parse_pop_state();
                         break;
                     case ljs_pt_string:
                         js->next=ljs_init();
@@ -342,7 +361,7 @@ ljs * ljs_parse_from_string(char *in)
                         js->child->prev=js;
                         js=js->child;
                         ljs_parse_set_state(s_object_comma);
-                        ljs_parse_push_state(s_object_key);
+                        ljs_parse_push_state(s_object_key,js->prev);
                         break;
                     case ljs_pt_array_start:
                         idx+=start+len;
@@ -351,7 +370,7 @@ ljs * ljs_parse_from_string(char *in)
                         js->child->prev=js;
                         js=js->child;
                         ljs_parse_set_state(s_object_comma);
-                        ljs_parse_push_state(s_array_value);
+                        ljs_parse_push_state(s_array_value,js->prev);
                         break;
                     default:
                         ljs_parse_set_error_state(idx,"invalid format, expecting value");
@@ -375,7 +394,7 @@ ljs * ljs_parse_from_string(char *in)
                         break;
                     case ljs_pt_obj_end:
                         idx+=start+len;
-                        ljs_parse_pop_state();
+                        js=ljs_parse_pop_state();
                         break;
 
                     default:
@@ -389,7 +408,7 @@ ljs * ljs_parse_from_string(char *in)
                 {
                     case ljs_pt_array_end:
                         idx+=start+len;
-                        ljs_parse_pop_state();
+                        js=ljs_parse_pop_state();
                         break;
                     case ljs_pt_string:
                         js->next=ljs_array_create_next_index_of_null(js);
@@ -443,7 +462,7 @@ ljs * ljs_parse_from_string(char *in)
                         js->child->prev=js;
                         js=js->child;
                         ljs_parse_set_state(s_array_comma);
-                        ljs_parse_push_state(s_object_key);
+                        ljs_parse_push_state(s_object_key,js->prev);
                         break;
                     case ljs_pt_array_start:
                         js->next=ljs_array_create_next_index_of_null(js);
@@ -452,9 +471,9 @@ ljs * ljs_parse_from_string(char *in)
                         js->type=ljsType_array;
                         js->child=ljs_init();
                         js->child->prev=js;
-                        js=js->next;
+                        js=js->child;
                         ljs_parse_set_state(s_array_comma);
-                        ljs_parse_push_state(s_array_value);
+                        ljs_parse_push_state(s_array_value,js->prev);
                         break;
                     default:
                         ljs_parse_set_error_state(idx,"invalid format, expecting next array element");
@@ -477,7 +496,7 @@ ljs * ljs_parse_from_string(char *in)
                         break;
                     case ljs_pt_array_end:
                         idx+=start+len;
-                        ljs_parse_pop_state();
+                        js=ljs_parse_pop_state();
                         break;
 
                     default:

@@ -10,7 +10,7 @@ messaging: $(objects_messaging)
 	gcc -o messaging  $(objects_messaging)
 
 msg_script: $(objects_msgscript)
-	gcc -o msg_script  $(objects_msgscript)
+	gcc -o msg_script  $(objects_msgscript) -pthread
 
 jsqlib.a: $(objects)
 	ar -r -o jsqlib.a $(objects)

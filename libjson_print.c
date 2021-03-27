@@ -141,7 +141,7 @@ void ljs_print_pointers(ljs * js)
 {
 	while(js)
 	{
-		printf("%p type=%d\n",js,js->type);
+		printf("%p type=%d previous=%p next=%p key=%s\n",js,js->type,js->prev,js->next,js->key);
 		if(js->child)
 		{
 			printf("->\n");

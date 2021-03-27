@@ -102,7 +102,6 @@ ljs * ljs_array_create_index_of_null(ljs *array, int idx)
 
 ljs * ljs_array_create_next_index_of_null(ljs *array_entry)
 {
-	//printf("[LJS_ARRAY] %s 1 %p\n",__FUNCTION__,array_entry); 
 	ljs* array=ljs_read_get_parent(array_entry);
 	int entries=0;
 	if(array_entry && array)
