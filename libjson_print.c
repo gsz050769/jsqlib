@@ -30,26 +30,35 @@
 ljsFormat _format=0;
 int tab=0;
 
-static void ljs_print_tab(int tab)
+static void ljs_print_tab(int tab, ljsFormat format)
 {
 	int idx=0;
 
-	printf("[LJS] ");
-	for(idx=0;idx<tab;idx++)
+	if(format!=ljsFormat_compact)
 	{
-		printf("\t");
+		for(idx=0;idx<tab;idx++)
+		{
+			printf("\t");
+		}
 	}
 }
 
-void ljs_print_start(void)
+void ljs_print_start(ljsFormat format)
 {
 	tab=1;
-	printf("[LJS]{\n");
+	if (format!=ljsFormat_compact)
+	{
+		printf("{\n");
+	}
+	else
+	{
+		printf("{");
+	}
 }
 
-void ljs_print_end(void)
+void ljs_print_end(ljsFormat format)
 {
-	printf("[LJS]}\n");
+	printf("}\n");
 }
 
 void ljs_print_element(ljs * js,ljsFormat format)
@@ -62,7 +71,7 @@ void ljs_print_element(ljs * js,ljsFormat format)
 		switch(js->type)
 		{
 			case ljsType_bool:
-				ljs_print_tab(tab);
+				ljs_print_tab(tab,format);
 				if (!is_array)
 				{
 					printf("\"%s\" : %s",js->key,js->boolean?"true":"false");
@@ -73,7 +82,7 @@ void ljs_print_element(ljs * js,ljsFormat format)
 				}
 				break;
 			case ljsType_null:
-				ljs_print_tab(tab);
+				ljs_print_tab(tab,format);
 				if (!is_array)
 				{
 					printf("\"%s\" : null",js->key);
@@ -84,7 +93,7 @@ void ljs_print_element(ljs * js,ljsFormat format)
 				}
 				break;
 			case ljsType_number:
-				ljs_print_tab(tab);
+				ljs_print_tab(tab,format);
 				if (!is_array)
 				{
 					printf("\"%s\" : %g",js->key,js->number);
@@ -95,7 +104,7 @@ void ljs_print_element(ljs * js,ljsFormat format)
 				}
 				break;
 			case ljsType_string:
-				ljs_print_tab(tab);
+				ljs_print_tab(tab,format);
 				if (!is_array)
 				{
 					printf("\"%s\" : \"%s\"",js->key,js->strVal);
@@ -107,19 +116,33 @@ void ljs_print_element(ljs * js,ljsFormat format)
 				break;
 			case ljsType_object:
 			case ljsType_array:
-				ljs_print_tab(tab);
+				ljs_print_tab(tab,format);
 				if (!is_array)
 				{
-					printf("\"%s\" : %s\n",js->key,js->type==ljsType_object?"{":"[");
+					if (format!=ljsFormat_compact)
+					{
+					  printf("\"%s\" : %s\n",js->key,js->type==ljsType_object?"{":"[");
+					}
+					else
+					{
+					  printf("\"%s\" : %s",js->key,js->type==ljsType_object?"{":"[");
+					}
 				}
 				else
 				{
-					printf("%s\n",js->type==ljsType_object?"{":"[");
+					if (format!=ljsFormat_compact)
+					{
+					  printf("%s\n",js->type==ljsType_object?"{":"[");
+					}
+					else
+					{
+					  printf("%s",js->type==ljsType_object?"{":"[");
+					}
 				}
 				tab++;
 				ljs_print_element(js->child,format);
 				tab--;
-				ljs_print_tab(tab);
+				ljs_print_tab(tab,format);
 				printf("%s",js->type==ljsType_object?"}":"]");
 				break;
 			case ljsType_root:
@@ -131,7 +154,10 @@ void ljs_print_element(ljs * js,ljsFormat format)
 			{
 				printf(",");
 			}
-			printf("\n");
+			if(format!=ljsFormat_compact)
+			{
+				printf("\n");
+			}
 		}
 		js=js->next;
 	}

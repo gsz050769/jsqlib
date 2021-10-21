@@ -17,7 +17,7 @@ jsqlib_app: $(ODIR)/jsqlib_app.o $(LIB_OBJECTS)
 	$(CC) -o $(ODIR)/jsqlib_app $(ODIR)/jsqlib_app.o $(LIB_OBJECTS)
 
 $(ODIR)/%.o: %.c $(headers)
-	$(CC) -c -o $@ $<
+	$(CC) -c -g -o $@ $<
 
 .PHONY: clean
 

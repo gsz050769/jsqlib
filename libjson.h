@@ -1,5 +1,5 @@
 /**
- *    Json libarary (jlib) used to create and read JSON messages in an eay way.
+ *    Json libarary (jlib) used to create and read JSON messages in an easy way.
  *    Copyright (C) 2021  Georg Schmitz
  *
  *    This program is free software: you can redistribute it and/or modify
@@ -68,9 +68,9 @@ typedef enum ljsFormat
 typedef struct ljs
 {
 	ljsType type;
-	struct ljs *next;
-	struct ljs *prev;
-	struct ljs *child;
+	struct ljs *next;     // chain next on same level
+	struct ljs *prev;     // chain previous on same level
+	struct ljs *child;    // chain to element next sub level
 	char * key;
 	char * strVal;
 	double doubleVal;
@@ -81,8 +81,8 @@ typedef struct ljs
 // *******************************************************
 // init and free of js objects
 // *******************************************************
-extern ljs * ljs_init(void);
-extern int ljs_free(ljs *js);
+extern ljs * ljs_init(void);  // create new json element 
+extern int ljs_free(ljs *js); // free json element
 
 // *******************************************************
 // Interface add content to a json object 
@@ -96,6 +96,21 @@ extern int  ljs_add_number(ljs *js, char * qualifier, double val);
 extern int  ljs_add_double(ljs *js, char * qualifier, double val);
 extern int  ljs_add_object(ljs *js, char * qualifier, ljs* jsAdd);
 extern int  ljs_add_array(ljs *js, char * qualifier, ljs* jsAdd);
+
+//
+// e.g. create array "persons" which is an array of objects containing string elements 
+//      "lastname" and "firstname" and bool value "liar":
+// ljs * my_json = ljs_init();
+// ljs_add_bool()
+// ljs_add_string(my_json,"persons:ARR/0:OBJ/lastname:STR","Trump");
+// ljs_add_string(my_json,"persons:ARR/0:OBJ/firstname:STR","Donald");
+// ljs_add_string(my_json,"persons:ARR/0:OBJ/liar:BOOL",1);
+// 
+// =>
+//
+// '{"persons":[{"lastname":"Trump","firstname":"Donald","liar":1}]}'
+//
+//
 
 // *******************************************************
 // Interface read content from a json object 

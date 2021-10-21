@@ -15,8 +15,8 @@
  *    You should have received a copy of the GNU General Public License
  *    along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-extern void ljs_print_start(void);
-extern void ljs_print_end(void);
+extern void ljs_print_start(ljsFormat format);
+extern void ljs_print_end(ljsFormat format);
 extern void ljs_print_element(ljs * js,ljsFormat format);
 extern void ljs_print_pointers(ljs * js);
 extern char  * ljs_print_malloc_element(ljs *js);

@@ -109,7 +109,7 @@ int main(void)
 	my_json = ljs_init();
 	ljs_add_string(my_json,"obj:ljsType_object/arr:ljsType_array/-1:ljsType_string","hallo");
 	// print to console:
-	ljs_print(my_json,ljsFormat_pretty);  
+	ljs_print(my_json,ljsFormat_compact);  
 	// create string from json object 
 	char * out=ljs_print_malloc(my_json);
 	printf("[LJS] ljs json=%s\n",out);
@@ -124,7 +124,7 @@ int main(void)
 	// -2- example create json object: from string, and access array index 1
 	printf("[LJS] #############################################################\n");
 	printf("[LJS] output example 2:\n");
-	my_json=ljs_add_parse("{\"name\":\"donald\", \"address\":[\"Victotry street\",5,null]}");
+	my_json=ljs_add_parse("{\"name\":\"donald\", \"address\":[\"Victotry street\",5,null]}\n  \t ");
 	//my_json=ljs_add_parse("{\"name\":\"donald\",\"address\":[\"test\"]}");
 	int idx=0;char *info=NULL;
 	if(!ljs_add_parse_ok(&idx,&info))

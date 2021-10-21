@@ -371,9 +371,9 @@ ljs * ljs_read_get_parent(ljs *js)
 */
 char * ljs_print(ljs * js, ljsFormat format)
 {
-	ljs_print_start();
+	ljs_print_start(format);
 	ljs_print_element(js,format);
-	ljs_print_end();
+	ljs_print_end(format);
 	return NULL;
 }
 

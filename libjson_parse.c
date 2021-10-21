@@ -240,6 +240,25 @@ static ljs_parse_type ljs_parse_get_next_element(char * msg, int * start, int* l
     return ljs_pt_other; // error
 }
 
+void trimTrailing(char * str)
+{
+    int index, i;
+
+    index = -1;
+
+    i = 0;
+    while(str[i] != '\0')
+    {
+        if(str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
+        {
+            index= i;
+        }
+
+        i++;
+    }
+    str[index +1 ] = '\0';
+}
+
 ljs * ljs_parse_from_string(char *in)
 {
     
@@ -248,18 +267,27 @@ ljs * ljs_parse_from_string(char *in)
     int len=0;
     ljs * js=NULL;
     ljs * js_start=NULL;
+    char *input=NULL;
 
-    //printf("[LJS_PARSE] %s input = %s len =%d\n",__FUNCTION__,in, (int)strlen(in));
+
     ljs_parse_init_state();
     lsjs_parse_error_set(-1,"");
 
-    if(!in)
+    input=libjson_malloc(strlen(in)+1);
+    if (input) 
     {
+        strcpy(input,in);
+    }
+    else
+    {
+        ljs_parse_set_error_state(0,"malloc failed");
         return NULL;
     }
 
+    trimTrailing(input); // remove trailing whitespaces
+
     int oldidx=-1;
-    while (in[idx]&&(ljs_parse_get_state()!=s_error))
+    while (input[idx]&&(ljs_parse_get_state()!=s_error))
     {
         if (oldidx==idx)
         {
@@ -267,12 +295,12 @@ ljs * ljs_parse_from_string(char *in)
             break;
         }
         oldidx=idx;
-        //printf("[LJS_PARSE] %s idx =%d 0x%02x state=%d %s\n",__FUNCTION__,idx,in[idx],ljs_parse_get_state(),&in[idx]);
+        //printf("[LJS_PARSE] %s idx =%d 0x%02x state=%d %s\n",__FUNCTION__,idx,input[idx],ljs_parse_get_state(),&input[idx]);
         //ljs_print_pointers(js_start);
         switch(ljs_parse_get_state())
         {
             case s_idle: // start
-                switch (ljs_parse_get_next_element(&in[idx],&start,&len))
+                switch (ljs_parse_get_next_element(&input[idx],&start,&len))
                 {
                     case ljs_pt_obj_start:
                         idx=idx+len;
@@ -286,7 +314,7 @@ ljs * ljs_parse_from_string(char *in)
                 }
                 break;
             case s_object_key:  // { ->
-                switch(ljs_parse_get_next_element(&in[idx],&start,&len))
+                switch(ljs_parse_get_next_element(&input[idx],&start,&len))
                 {
                     case ljs_pt_obj_end:
                         idx+=start+len;
@@ -297,7 +325,7 @@ ljs * ljs_parse_from_string(char *in)
                         js->next->prev=js;
                         js=js->next;
                         js->key=libjson_malloc(len);
-                        strncpy(js->key,&in[idx]+start,len-1);
+                        strncpy(js->key,&input[idx]+start,len-1);
                         idx+=start+len;
                         ljs_parse_set_state(s_object_colon);
                         break;
@@ -307,7 +335,7 @@ ljs * ljs_parse_from_string(char *in)
                 }
                 break;
             case s_object_colon:  // { "hkjhkj" ->
-                switch(ljs_parse_get_next_element(&in[idx],&start,&len))
+                switch(ljs_parse_get_next_element(&input[idx],&start,&len))
                 {
                     case ljs_pt_colon:
                         idx+=start+len;
@@ -319,11 +347,11 @@ ljs * ljs_parse_from_string(char *in)
                 }
                 break;
             case s_object_value: // { "hhhh" : ->
-                switch(ljs_parse_get_next_element(&in[idx],&start,&len))
+                switch(ljs_parse_get_next_element(&input[idx],&start,&len))
                 {
                     case ljs_pt_string:
                         js->strVal=libjson_malloc(len);
-                        strncpy(js->strVal,&in[idx]+start,len-1);
+                        strncpy(js->strVal,&input[idx]+start,len-1);
                         js->type=ljsType_string;
                         idx+=start+len;
                         ljs_parse_set_state(s_object_comma);
@@ -379,11 +407,11 @@ ljs * ljs_parse_from_string(char *in)
                 break;
 
             case s_object_comma: // { "hhhh" : "jljljk" ->
-                switch(ljs_parse_get_next_element(&in[idx],&start,&len))
+                switch(ljs_parse_get_next_element(&input[idx],&start,&len))
                 {
                     case ljs_pt_comma: 
                         idx+=start+len;
-                        if (ljs_parse_get_next_element(&in[idx],&start,&len)==ljs_pt_string)
+                        if (ljs_parse_get_next_element(&input[idx],&start,&len)==ljs_pt_string)
                         {
                             ljs_parse_set_state(s_object_key);
                         }
@@ -404,7 +432,7 @@ ljs * ljs_parse_from_string(char *in)
                 break;
 
             case s_array_value:
-                switch(ljs_parse_get_next_element(&in[idx],&start,&len))
+                switch(ljs_parse_get_next_element(&input[idx],&start,&len))
                 {
                     case ljs_pt_array_end:
                         idx+=start+len;
@@ -414,7 +442,7 @@ ljs * ljs_parse_from_string(char *in)
                         js->next=ljs_array_create_next_index_of_null(js);
                         js=js->next;
                         js->strVal=libjson_malloc(len);
-                        strncpy(js->strVal,&in[idx]+start,len-1);
+                        strncpy(js->strVal,&input[idx]+start,len-1);
                         js->type=ljsType_string;
                         idx+=start+len;
                         ljs_parse_set_state(s_array_comma);
@@ -481,11 +509,11 @@ ljs * ljs_parse_from_string(char *in)
                 }
                 break;
             case s_array_comma:
-                switch(ljs_parse_get_next_element(&in[idx],&start,&len))
+                switch(ljs_parse_get_next_element(&input[idx],&start,&len))
                 {
                     case ljs_pt_comma: 
                         idx+=start+len;
-                        if (array_valid_type_tab[ljs_parse_get_next_element(&in[idx],&start,&len)].vlaid)
+                        if (array_valid_type_tab[ljs_parse_get_next_element(&input[idx],&start,&len)].vlaid)
                         {
                             ljs_parse_set_state(s_array_value);
                         }
@@ -507,6 +535,10 @@ ljs * ljs_parse_from_string(char *in)
             default:
                 ljs_parse_set_error_state(idx,"internal error");
         }
+    }
+    if (input)
+    {
+        libjson_free(input);
     }
     if((ljs_parse_get_state()==s_idle) &&(state_idx==0))
     {
